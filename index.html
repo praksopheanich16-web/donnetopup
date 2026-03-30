@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Robux Shop Calculator</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0f0f0f;
+        --bg2: #1a1a1a;
+        --bg3: #242424;
+        --border: #2e2e2e;
+        --green: #00e676;
+        --green-bg: #00251a;
+        --green-dim: #00994d;
+        --amber: #ffb300;
+        --amber-bg: #1f1500;
+        --white: #f0f0f0;
+        --grey: #888888;
+        --grey-dim: #444444;
+        --red: #ff5252;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--white);
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        padding: 2rem 1rem 4rem;
+      }
+
+      .app {
+        width: 100%;
+        max-width: 440px;
+      }
+
+      /* ── Header ── */
+      .header {
+        text-align: center;
+        padding: 1rem 0 1.75rem;
+      }
+      .logo {
+        font-size: 30px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: var(--white);
+      }
+      .logo span {
+        color: var(--green);
+      }
+      .subtitle {
+        font-size: 13px;
+        color: var(--grey);
+        margin-top: 4px;
+      }
+
+      /* ── Card ── */
+      .card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 12px;
+      }
+
+      .section-label {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--grey);
+        margin-bottom: 10px;
+      }
+
+      /* ── Toggle ── */
+      .toggle-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .tog {
+        padding: 11px 8px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+        color: var(--grey);
+        background: var(--bg3);
+        transition: all 0.18s ease;
+        user-select: none;
+      }
+      .tog:hover {
+        border-color: var(--grey-dim);
+        color: var(--white);
+      }
+      .tog.active {
+        background: var(--green-bg);
+        border-color: var(--green-dim);
+        color: var(--green);
+      }
+
+      /* ── Input ── */
+      .input-wrap {
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 14px;
+        transition: border-color 0.18s;
+      }
+      .input-wrap:focus-within {
+        border-color: var(--green-dim);
+      }
+      .prefix {
+        padding: 0 14px;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--green);
+        background: var(--bg3);
+        height: 58px;
+        display: flex;
+        align-items: center;
+        border-right: 1px solid var(--border);
+        min-width: 48px;
+        justify-content: center;
+      }
+      #amount {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 24px;
+        font-weight: 600;
+        padding: 0 16px;
+        color: var(--white);
+        outline: none;
+        height: 58px;
+        width: 0;
+      }
+      #amount::placeholder {
+        color: var(--grey-dim);
+      }
+      #amount::-webkit-outer-spin-button,
+      #amount::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      #amount[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--grey);
+        margin-top: 8px;
+        line-height: 1.5;
+      }
+
+      /* ── Upsell ── */
+      .upsell {
+        background: var(--amber-bg);
+        border: 1px solid #3a2800;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 12px;
+        display: none;
+      }
+      .upsell-head {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--amber);
+        margin-bottom: 6px;
+      }
+      .upsell-body {
+        font-size: 14px;
+        color: #d9a000;
+        line-height: 1.6;
+      }
+      .upsell-body strong {
+        color: var(--amber);
+      }
+
+      /* ── Receipt ── */
+      .receipt-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .rrow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 14px;
+        background: var(--bg3);
+        border-radius: 10px;
+      }
+      .rrow-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .qty-badge {
+        min-width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--green-bg);
+        color: var(--green);
+        font-size: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--green-dim);
+      }
+      .rrow-pkg {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--white);
+      }
+      .rrow-each {
+        font-size: 12px;
+        color: var(--grey);
+        margin-top: 1px;
+      }
+      .rrow-right {
+        text-align: right;
+      }
+      .rrow-robux {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--green);
+      }
+      .rrow-cost {
+        font-size: 12px;
+        color: var(--grey);
+        margin-top: 1px;
+      }
+
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 12px 0;
+      }
+
+      .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .total-robux {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--green);
+      }
+      .total-cost {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--white);
+      }
+
+      .change-row {
+        font-size: 12px;
+        color: var(--grey);
+        text-align: right;
+        margin-top: 6px;
+      }
+
+      /* ── Price list ── */
+      .pricelist {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+
+      .plitem {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 6px;
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.15s ease, background 0.18s ease, border-color 0.18s ease;
+      }
+
+      .plitem:hover {
+        background: var(--border);
+        transform: scale(1.02);
+      }
+
+      .plitem:active {
+        transform: scale(0.96);
+      }
+
+      /* ✅ Selected / toggled-on state */
+      .plitem.selected {
+        background: var(--green-bg);
+        border-color: var(--green-dim);
+      }
+
+      .plitem.selected .pl-robux {
+        color: var(--green);
+      }
+
+      .plitem.selected .pl-rbx {
+        color: var(--green-dim);
+      }
+
+      .pl-robux {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--white);
+        transition: color 0.18s ease;
+      }
+      .pl-rbx {
+        font-size: 11px;
+        color: var(--grey);
+        margin-top: 1px;
+        transition: color 0.18s ease;
+      }
+      .pl-price {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--green);
+        margin-top: 4px;
+      }
+      .pl-description {
+        font-size: 10px;
+        color: var(--amber);
+        margin-top: 2px;
+        font-weight: 600;
+      }
+
+      .empty {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--grey);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      /* ── Footer ── */
+      .footer {
+        text-align: center;
+        font-size: 12px;
+        color: var(--grey-dim);
+        margin-top: 1.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="header">
+        <div class="logo">Donne <span>TopUp</span></div>
+        <div class="subtitle">Store Calculator</div>
+      </div>
+
+      <div class="card">
+        <div class="section-label">Calculate by</div>
+        <div class="toggle-row">
+          <div class="tog active" id="tog-budget" onclick="setMode('budget')">
+            💵 My budget (USD)
+          </div>
+          <div class="tog" id="tog-robux" onclick="setMode('robux')">
+            🎮 Robux amount
+          </div>
+        </div>
+        <div class="input-wrap">
+          <div class="prefix" id="prefix">$</div>
+          <input
+            id="amount"
+            type="number"
+            min="0"
+            step="any"
+            placeholder="0.00"
+            oninput="calculate()"
+          />
+        </div>
+        <div class="hint" id="hint">
+          Enter your maximum budget — we'll find the best deal
+        </div>
+      </div>
+
+      <div class="upsell" id="upsell">
+        <div class="upsell-head">⚡ Better deal available</div>
+        <div class="upsell-body" id="upsell-body"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-label">Receipt</div>
+        <div id="receipt-content">
+          <div class="empty">
+            Enter a value above<br />to see your package breakdown
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-label">Price list</div>
+        <div class="pricelist">
+          <div class="plitem" onclick="toggleSelect(this)">
+            <div class="pl-robux">80</div>
+            <div class="pl-rbx">Robux</div>
+            <div class="pl-price">$0.90</div>
+          </div>
+          <div class="plitem" onclick="toggleSelect(this)">
+            <div class="pl-robux">500</div>
+            <div class="pl-rbx">Robux</div>
+            <div class="pl-price">$4.50</div>
+          </div>
+          <div class="plitem" onclick="toggleSelect(this)">
+            <div class="pl-robux">1,000</div>
+            <div class="pl-rbx">Robux</div>
+            <div class="pl-price">$9.00</div>
+            <div class="pl-description">Free Premium</div>
+          </div>
+          <div class="plitem" onclick="toggleSelect(this)">
+            <div class="pl-robux">2,200</div>
+            <div class="pl-rbx">Robux</div>
+            <div class="pl-price">$18.00</div>
+            <div class="pl-description">Free Premium</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        Made&Design by: <b>MaNich</b>; Owned by Donne Store
+      </div>
+    </div>
+
+    <script>
+      const PKGS = [
+        { robux: 2200, price: 18.0 },
+        { robux: 1000, price: 9.0 },
+        { robux: 500, price: 4.5 },
+        { robux: 320, price: 3.6 },
+        { robux: 240, price: 2.7 },
+        { robux: 160, price: 1.8 },
+        { robux: 80, price: 0.9 },
+      ];
+      const UPSELL_TIERS = PKGS.filter((p) =>
+        [500, 1000, 2200].includes(p.robux),
+      );
+
+      let mode = "budget";
+
+      // ✅ Click once → green (selected). Click again → back to normal.
+      function toggleSelect(el) {
+        el.classList.toggle("selected");
+      }
+
+      function setMode(m) {
+        mode = m;
+        document
+          .getElementById("tog-budget")
+          .classList.toggle("active", m === "budget");
+        document
+          .getElementById("tog-robux")
+          .classList.toggle("active", m === "robux");
+        document.getElementById("prefix").textContent =
+          m === "budget" ? "$" : "R";
+        document.getElementById("amount").placeholder =
+          m === "budget" ? "0.00" : "0";
+        document.getElementById("hint").textContent =
+          m === "budget"
+            ? "Enter your maximum budget — we'll find the best deal"
+            : "Enter how many Robux you want — we'll find the cheapest way";
+        document.getElementById("amount").value = "";
+        clearReceipt();
+      }
+
+      function calcBudget(budget) {
+        const cart = [];
+        let rem = budget;
+        for (const p of PKGS) {
+          const qty = Math.floor(rem / p.price);
+          if (qty > 0) {
+            cart.push({ ...p, qty });
+            rem = parseFloat((rem - qty * p.price).toFixed(10));
+          }
+        }
+        return cart;
+      }
+
+      function calcRobux(target) {
+        const cart = [];
+        let rem = target;
+        for (const p of PKGS) {
+          if (rem <= 0) break;
+          const qty = Math.floor(rem / p.robux);
+          if (qty > 0) {
+            cart.push({ ...p, qty });
+            rem -= qty * p.robux;
+          }
+        }
+        if (rem > 0) {
+          const s = PKGS[PKGS.length - 1];
+          const ex = cart.find((i) => i.robux === s.robux);
+          if (ex) ex.qty++;
+          else cart.push({ ...s, qty: 1 });
+        }
+        return cart;
+      }
+
+      function findUpsell(budget, totalRobux) {
+        for (const t of [...UPSELL_TIERS].sort((a, b) => a.price - b.price)) {
+          if (budget < t.price) {
+            const gap = parseFloat((t.price - budget).toFixed(2));
+            const bonus = t.robux - totalRobux;
+            if (gap > 0 && gap > 0) return { gap, tier: t, bonus };
+            break;
+          }
+        }
+        return null;
+      }
+
+      function clearReceipt() {
+        document.getElementById("receipt-content").innerHTML =
+          '<div class="empty">Enter a value above<br>to see your package breakdown</div>';
+        document.getElementById("upsell").style.display = "none";
+      }
+
+      function calculate() {
+        const raw = parseFloat(document.getElementById("amount").value);
+        if (isNaN(raw) || raw <= 0) {
+          clearReceipt();
+          return;
+        }
+
+        let cart,
+          totalRobux,
+          totalCost,
+          leftover = null,
+          upsell = null;
+
+        if (mode === "budget") {
+          cart = calcBudget(raw);
+          if (!cart.length) {
+            document.getElementById("receipt-content").innerHTML =
+              '<div class="empty">Budget too low — minimum is $0.90 for 80 Robux</div>';
+            document.getElementById("upsell").style.display = "none";
+            return;
+          }
+          totalRobux = cart.reduce((s, i) => s + i.qty * i.robux, 0);
+          totalCost = parseFloat(
+            cart.reduce((s, i) => s + i.qty * i.price, 0).toFixed(2),
+          );
+          leftover = parseFloat((raw - totalCost).toFixed(2));
+          upsell = findUpsell(raw, totalRobux);
+        } else {
+          const target = Math.floor(raw);
+          cart = calcRobux(target);
+          totalRobux = cart.reduce((s, i) => s + i.qty * i.robux, 0);
+          totalCost = parseFloat(
+            cart.reduce((s, i) => s + i.qty * i.price, 0).toFixed(2),
+          );
+        }
+
+        let rows = "";
+        for (const item of cart) {
+          const lr = item.qty * item.robux;
+          const lc = (item.qty * item.price).toFixed(2);
+          rows += `
+      <div class="rrow">
+        <div class="rrow-left">
+          <div class="qty-badge">${item.qty}×</div>
+          <div>
+            <div class="rrow-pkg">${item.robux.toLocaleString()} Robux pack</div>
+            <div class="rrow-each">$${item.price.toFixed(2)} each</div>
+          </div>
+        </div>
+        <div class="rrow-right">
+          <div class="rrow-robux">+${lr.toLocaleString()}</div>
+          <div class="rrow-cost">$${lc}</div>
+        </div>
+      </div>`;
+        }
+
+        const changeRow =
+          leftover !== null && leftover > 0
+            ? `<div class="change-row">Change from budget: $${leftover.toFixed(2)}</div>`
+            : "";
+
+        document.getElementById("receipt-content").innerHTML = `
+    <div class="receipt-rows">${rows}</div>
+    <div class="divider"></div>
+    <div class="total-row">
+      <div class="total-robux">${totalRobux.toLocaleString()} Robux</div>
+      <div class="total-cost">$${totalCost.toFixed(2)}</div>
+    </div>
+    ${changeRow}
+  `;
+
+        const upsellEl = document.getElementById("upsell");
+        if (upsell) {
+          document.getElementById("upsell-body").innerHTML =
+            `Add just <strong>$${upsell.gap.toFixed(2)} more</strong> and upgrade to the ` +
+            `<strong>${upsell.tier.robux.toLocaleString()} Robux pack</strong> ($${upsell.tier.price.toFixed(2)}) — ` +
+            `that's <strong>+${upsell.bonus.toLocaleString()} extra Robux</strong> for almost nothing!`;
+          upsellEl.style.display = "block";
+        } else {
+          upsellEl.style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>
