@@ -1,1143 +1,627 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Donne TopUp — Robux Store</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
-<style>
-  :root {
-    --bg:#0d0d0d;--surface:#161616;--card:#1b1b1b;--border:rgba(255,255,255,0.07);
-    --green:#00E676;--green-dim:rgba(0,230,118,0.08);--purple:#A855F7;
-    --orange:#FF961E;--text:#ffffff;--text-2:#888;--text-3:#444;
-    --radius:20px;--radius-sm:12px;
-  }
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    background:var(--bg);min-height:100vh;font-family:'DM Sans',sans-serif;
-    color:var(--text);display:flex;flex-direction:column;align-items:center;
-    padding:40px 16px 60px;overflow-x:hidden;position:relative;
-  }
-  body::before{
-    content:'';position:fixed;top:-120px;left:50%;transform:translateX(-60%);
-    width:600px;height:600px;
-    background:radial-gradient(circle,rgba(0,230,118,0.09) 0%,transparent 70%);
-    pointer-events:none;z-index:0;
-  }
-  body::after{
-    content:'';position:fixed;bottom:-100px;right:-80px;width:400px;height:400px;
-    background:radial-gradient(circle,rgba(168,85,247,0.07) 0%,transparent 70%);
-    pointer-events:none;z-index:0;
-  }
-  .grain{
-    position:fixed;inset:0;
-    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events:none;z-index:999;opacity:0.6;
-  }
-  .wrapper{
-    width:100%;max-width:500px;display:flex;flex-direction:column;gap:16px;
-    position:relative;z-index:1;
-  }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Robux Shop Calculator</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-  /* ── TOP AREA ── */
-  .top-area{
-    position:relative;
-    text-align:center;
-    padding:12px 0 20px;
-    animation:fadeUp 0.5s ease both;
-  }
-  /* buttons anchored to top-right of the wrapper */
-  .header-btns{
-    position:absolute;
-    top:14px;right:0;
-    display:flex;align-items:center;gap:8px;
-    z-index:200;
-  }
-  /* panels-anchor: fixed overlay, positioned by JS to align under the buttons */
-  .panels-anchor{
-    position:fixed;
-    z-index:199;
-    width:270px;
-  }
-  @media(max-width:560px){
-    .panels-anchor{ width:calc(100vw - 16px); }
-  }
+      :root {
+        --bg: #0f0f0f;
+        --bg2: #1a1a1a;
+        --bg3: #242424;
+        --border: #2e2e2e;
+        --green: #00e676;
+        --green-bg: #00251a;
+        --green-dim: #00994d;
+        --amber: #ffb300;
+        --amber-bg: #1f1500;
+        --white: #f0f0f0;
+        --grey: #888888;
+        --grey-dim: #444444;
+        --red: #ff5252;
+      }
 
-  .icon-btn{
-    display:flex;align-items:center;gap:7px;padding:8px 14px;
-    background:var(--card);border:1px solid var(--border);border-radius:999px;
-    color:var(--text-2);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
-    cursor:pointer;transition:all 0.2s ease;letter-spacing:0.03em;white-space:nowrap;
-  }
-  .icon-btn:hover{border-color:rgba(0,230,118,0.35);color:var(--green);background:rgba(0,230,118,0.05);}
-  .icon-btn .lt-dot{
-    width:7px;height:7px;border-radius:50%;background:var(--text-3);
-    flex-shrink:0;transition:background 0.2s,box-shadow 0.2s;
-  }
-  .icon-btn:hover .lt-dot,.icon-btn.logged-in .lt-dot{background:var(--green);box-shadow:0 0 8px var(--green);}
-  .icon-btn.logged-in{border-color:rgba(0,230,118,0.4);color:var(--green);background:rgba(0,230,118,0.06);}
+      body {
+        background: var(--bg);
+        color: var(--white);
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        padding: 2rem 1rem 4rem;
+      }
 
-  /* menu icon */
-  .menu-icon{display:flex;flex-direction:column;gap:3px;width:14px;flex-shrink:0;}
-  .menu-icon span{display:block;height:1.5px;background:currentColor;border-radius:2px;transition:all 0.2s;}
+      .app {
+        width: 100%;
+        max-width: 440px;
+      }
 
-  /* ── PANELS — stacked inside the anchor div, float over the page ── */
-  .panel{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    overflow:hidden;max-height:0;opacity:0;pointer-events:none;
-    transition:max-height 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease,border-color 0.3s ease;
-    width:100%;
-  }
-  .panel.open{max-height:560px;opacity:1;border-color:rgba(0,230,118,0.2);pointer-events:auto;}
+      /* ── Header ── */
+      .header {
+        text-align: center;
+        padding: 1rem 0 1.75rem;
+      }
+      .logo {
+        font-size: 30px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: var(--white);
+      }
+      .logo span {
+        color: var(--green);
+      }
+      .subtitle {
+        font-size: 13px;
+        color: var(--grey);
+        margin-top: 4px;
+      }
 
-  .panel-inner{padding:24px;}
-  .panel-top-line{
-    position:absolute;top:0;left:0;right:0;height:1px;
-    background:linear-gradient(90deg,transparent,rgba(0,230,118,0.5),transparent);
-  }
-  .panel-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.02em;color:#fff;margin-bottom:4px;}
-  .panel-sub{font-size:12px;color:var(--text-3);margin-bottom:22px;line-height:1.5;}
-  .panel-sub span{color:var(--green);}
+      /* ── Card ── */
+      .card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 12px;
+      }
 
-  /* logged in state */
-  .panel-logged-in{display:none;flex-direction:column;align-items:center;padding:30px 0 10px;gap:14px;}
-  .panel-logged-in.show{display:flex;}
-  .pli-avatar{
-    width:56px;height:56px;border-radius:50%;
-    background:linear-gradient(135deg,rgba(0,230,118,0.2),rgba(0,230,118,0.05));
-    border:2px solid rgba(0,230,118,0.35);
-    display:flex;align-items:center;justify-content:center;font-size:24px;
-  }
-  .pli-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.02em;}
-  .pli-badge{
-    display:inline-flex;align-items:center;gap:6px;
-    background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);
-    color:var(--green);font-size:11px;font-weight:700;padding:4px 12px;
-    border-radius:999px;letter-spacing:0.08em;text-transform:uppercase;
-  }
-  .pli-rate{font-size:12px;color:var(--text-3);text-align:center;line-height:1.6;}
-  .pli-rate strong{color:var(--green);font-weight:700;}
-  .logout-btn{
-    margin-top:8px;padding:9px 22px;background:rgba(255,77,77,0.06);
-    border:1px solid rgba(255,77,77,0.2);border-radius:10px;color:#ff6b6b;
-    font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
-    cursor:pointer;letter-spacing:0.04em;transition:all 0.2s;
-  }
-  .logout-btn:hover{background:rgba(255,77,77,0.12);border-color:rgba(255,77,77,0.4);}
+      .section-label {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--grey);
+        margin-bottom: 10px;
+      }
 
-  /* form fields */
-  .login-form{display:flex;flex-direction:column;gap:12px;}
-  .login-form.hidden{display:none;}
-  .field-wrap{display:flex;flex-direction:column;gap:6px;}
-  .field-label{font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-3);}
-  .field-input-wrap{
-    display:flex;align-items:center;top:var(--card);
-    border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;
-    transition:border-color 0.2s,box-shadow 0.2s;
-  }
-  .field-input-wrap:focus-within{border-color:rgba(0,230,118,0.45);box-shadow:0 0 0 3px rgba(0,230,118,0.06);}
-  .field-icon{font-size:14px;margin-right:10px;flex-shrink:0;opacity:0.5;}
-  .field-input{
-    flex:1;background:transparent;border:none;outline:none;color:var(--text);
-    font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:13px 0;
-  }
-  .field-input::placeholder{color:var(--text-3);}
-  .pw-toggle{background:none;border:none;cursor:pointer;color:var(--text-3);font-size:14px;padding:0;line-height:1;transition:color 0.15s;flex-shrink:0;margin-left:6px;}
-  .pw-toggle:hover{color:var(--green);}
-  .login-error{
-    display:none;align-items:center;gap:8px;background:rgba(255,77,77,0.07);
-    border:1px solid rgba(255,77,77,0.2);border-radius:10px;padding:10px 14px;
-    font-size:12px;color:#ff8080;font-weight:500;
-  }
-  .login-error.show{display:flex;}
-  .login-submit{
-    display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-    padding:14px;background:var(--green);border:none;border-radius:var(--radius-sm);
-    color:#000;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;
-    letter-spacing:0.02em;cursor:pointer;transition:background 0.2s,transform 0.15s,box-shadow 0.2s;margin-top:4px;
-  }
-  .login-submit:hover{background:#00ff8a;box-shadow:0 4px 24px rgba(0,230,118,0.25);transform:translateY(-1px);}
-  .login-submit:active{transform:scale(0.98);}
-  .login-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-  .login-submit .spinner{width:14px;height:14px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.6s linear infinite;display:none;}
-  .login-submit.loading .spinner{display:block;}
-  .login-submit.loading .btn-text{display:none;}
+      /* ── Toggle ── */
+      .toggle-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .tog {
+        padding: 11px 8px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+        color: var(--grey);
+        background: var(--bg3);
+        transition: all 0.18s ease;
+        user-select: none;
+      }
+      .tog:hover {
+        border-color: var(--grey-dim);
+        color: var(--white);
+      }
+      .tog.active {
+        background: var(--green-bg);
+        border-color: var(--green-dim);
+        color: var(--green);
+      }
 
-  /* ── MENU PANEL ── */
-  .menu-options{display:flex;flex-direction:column;gap:10px;padding:4px 0;}
-  .menu-option{
-    display:flex;align-items:center;gap:14px;padding:14px 16px;
-    background:var(--card);border:1px solid var(--border);border-radius:14px;
-    cursor:pointer;transition:all 0.2s;color:var(--text-2);font-size:14px;font-weight:600;
-    text-decoration:none;
-  }
-  .menu-option:hover{border-color:rgba(0,230,118,0.3);color:#ccc;background:rgba(0,230,118,0.04);}
-  .menu-option-icon{font-size:22px;flex-shrink:0;}
-  .menu-option-desc{font-size:11px;color:var(--text-3);font-weight:400;margin-top:2px;}
+      /* ── Input ── */
+      .input-wrap {
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 14px;
+        transition: border-color 0.18s;
+      }
+      .input-wrap:focus-within {
+        border-color: var(--green-dim);
+      }
+      .prefix {
+        padding: 0 14px;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--green);
+        background: var(--bg3);
+        height: 58px;
+        display: flex;
+        align-items: center;
+        border-right: 1px solid var(--border);
+        min-width: 48px;
+        justify-content: center;
+      }
+      #amount {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 24px;
+        font-weight: 600;
+        padding: 0 16px;
+        color: var(--white);
+        outline: none;
+        height: 58px;
+        width: 0;
+      }
+      #amount::placeholder {
+        color: var(--grey-dim);
+      }
+      #amount::-webkit-outer-spin-button,
+      #amount::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      #amount[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
 
-  .history-panel-inner{padding:24px;}
-  .history-back{
-    display:flex;align-items:center;gap:8px;background:none;border:none;
-    color:var(--text-3);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
-    cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:18px;
-    padding:0;transition:color 0.2s;
-  }
-  .history-back:hover{color:var(--green);}
-  .history-empty{text-align:center;padding:30px 0;color:var(--text-3);font-size:13px;line-height:1.6;}
-  .history-empty .icon{font-size:28px;display:block;margin-bottom:10px;}
-  .history-order{
-    background:var(--card);border:1px solid var(--border);border-radius:14px;
-    padding:14px 16px;margin-bottom:10px;
-  }
-  .history-order:last-child{margin-bottom:0;}
-  .history-order-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-  .history-order-id{font-size:10px;color:var(--text-3);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;}
-  .history-order-date{font-size:10px;color:var(--text-3);}
-  .history-order-robux{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--green);letter-spacing:-0.02em;}
-  .history-order-cost{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#ccc;}
-  .history-order-user{font-size:11px;color:var(--text-3);margin-top:4px;}
-  .history-status{
-    display:inline-flex;align-items:center;gap:5px;
-    background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);
-    color:var(--green);font-size:10px;font-weight:700;padding:3px 9px;
-    border-radius:999px;letter-spacing:0.06em;text-transform:uppercase;margin-top:6px;
-  }
-  .history-status-dot{width:5px;height:5px;border-radius:50%;background:var(--green);}
+      .hint {
+        font-size: 12px;
+        color: var(--grey);
+        margin-top: 8px;
+        line-height: 1.5;
+      }
 
-  /* ── HISTORY PANEL ── */
-  .history-panel-wrap{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    overflow:hidden;max-height:0;opacity:0;pointer-events:none;position:relative;
-    transition:max-height 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease,border-color 0.3s ease;
-  }
-  .history-panel-wrap.show{max-height:600px;opacity:1;border-color:rgba(0,230,118,0.2);pointer-events:auto;}
+      /* ── Upsell ── */
+      .upsell {
+        background: var(--amber-bg);
+        border: 1px solid #3a2800;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 12px;
+        display: none;
+      }
+      .upsell-head {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--amber);
+        margin-bottom: 6px;
+      }
+      .upsell-body {
+        font-size: 14px;
+        color: #d9a000;
+        line-height: 1.6;
+      }
+      .upsell-body strong {
+        color: var(--amber);
+      }
 
-  /* ── CONTACT PANEL ── */
-  .contact-panel-wrap{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    overflow:hidden;max-height:0;opacity:0;pointer-events:none;position:relative;
-    transition:max-height 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease,border-color 0.3s ease;
-  }
-  .contact-panel-wrap.show{max-height:400px;opacity:1;border-color:rgba(0,230,118,0.2);pointer-events:auto;}
-  .contact-item{
-    display:flex;align-items:center;gap:14px;padding:14px 16px;
-    background:var(--card);border:1px solid var(--border);border-radius:14px;
-    margin-bottom:10px;
-  }
-  .contact-item:last-child{margin-bottom:0;}
-  .contact-item-icon{font-size:22px;flex-shrink:0;}
-  .contact-item-label{font-size:10px;color:var(--text-3);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:2px;}
-  .contact-item-value{font-size:14px;color:#ccc;font-weight:600;}
+      /* ── Receipt ── */
+      .receipt-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
 
-  /* ── RESELLER BANNER ── */
-  .reseller-banner{
-    display:none;align-items:center;gap:12px;background:rgba(0,230,118,0.06);
-    border:1px solid rgba(0,230,118,0.22);border-radius:14px;padding:14px 18px;
-    animation:fadeUp 0.3s ease both;
-  }
-  .reseller-banner.show{display:flex;}
-  .reseller-banner-icon{font-size:22px;flex-shrink:0;}
-  .reseller-banner-title{font-size:12px;font-weight:700;color:var(--green);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:2px;}
-  .reseller-banner-sub{font-size:11px;color:var(--text-3);line-height:1.5;}
-  .reseller-banner-sub strong{color:#ccc;}
+      .rrow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 14px;
+        background: var(--bg3);
+        border-radius: 10px;
+      }
+      .rrow-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .qty-badge {
+        min-width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--green-bg);
+        color: var(--green);
+        font-size: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--green-dim);
+      }
+      .rrow-pkg {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--white);
+      }
+      .rrow-each {
+        font-size: 12px;
+        color: var(--grey);
+        margin-top: 1px;
+      }
+      .rrow-right {
+        text-align: right;
+      }
+      .rrow-robux {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--green);
+      }
+      .rrow-cost {
+        font-size: 12px;
+        color: var(--grey);
+        margin-top: 1px;
+      }
 
-  /* ── CARD ── */
-  .card{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    padding:24px;position:relative;overflow:hidden;animation:fadeUp 0.5s ease both;
-  }
-  .card-top-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,230,118,0.3),transparent);}
-  .section-label{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-3);margin-bottom:18px;}
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 12px 0;
+      }
 
-  /* TOGGLE */
-  .toggle-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px;}
-  .toggle-btn{
-    display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;
-    border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);
-    color:var(--text-2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
-    cursor:pointer;transition:all 0.2s ease;user-select:none;
-  }
-  .toggle-btn:hover{border-color:rgba(0,230,118,0.2);color:#ccc;}
-  .toggle-btn.active{background:var(--green-dim);border-color:rgba(0,230,118,0.45);color:var(--green);box-shadow:0 0 20px rgba(0,230,118,0.06);}
-  .toggle-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:13px;flex-shrink:0;}
-  .toggle-icon.green{background:rgba(0,230,118,0.12);}
-  .toggle-icon.purple{background:rgba(168,85,247,0.12);}
+      .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .total-robux {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--green);
+      }
+      .total-cost {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--white);
+      }
 
-  /* INPUT */
-  .input-wrap{
-    background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);
-    display:flex;align-items:center;padding:0 18px;
-    transition:border-color 0.2s,box-shadow 0.2s;margin-bottom:12px;
-  }
-  .input-wrap:focus-within{border-color:rgba(0,230,118,0.5);box-shadow:0 0 0 3px rgba(0,230,118,0.06);}
-  .input-prefix{font-family:'Syne',sans-serif;font-size:30px;font-weight:700;color:var(--text-3);user-select:none;padding-right:8px;line-height:1;}
-  #mainInput{
-    flex:1;background:transparent;border:none;outline:none;color:var(--text);
-    font-family:'Syne',sans-serif;font-size:34px;font-weight:700;padding:18px 0;
-    letter-spacing:-0.02em;width:100%;-moz-appearance:textfield;
-  }
-  #mainInput::placeholder{color:var(--text-3);}
-  #mainInput::-webkit-outer-spin-button,#mainInput::-webkit-inner-spin-button{-webkit-appearance:none;}
-  .input-helper{font-size:12px;color:var(--text-3);text-align:center;line-height:1.5;}
+      .change-row {
+        font-size: 12px;
+        color: var(--grey);
+        text-align: right;
+        margin-top: 6px;
+      }
 
-  /* RECEIPT */
-  .receipt-empty{text-align:center;padding:28px 0;color:var(--text-3);font-size:14px;line-height:1.6;}
-  .receipt-empty .icon{font-size:30px;margin-bottom:10px;display:block;}
-  .receipt-content{display:none;}
-  .receipt-content.visible{display:block;animation:fadeUp 0.3s ease both;}
-  .receipt-total{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:18px;gap:12px;}
-  .receipt-total-label{font-size:12px;color:var(--text-2);font-weight:500;margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase;}
-  .receipt-total-value{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--green);letter-spacing:-0.03em;line-height:1;}
-  .receipt-total-sub{font-size:12px;color:var(--text-3);margin-top:4px;}
-  .receipt-cost-box{text-align:right;flex-shrink:0;}
-  .receipt-cost-label{font-size:12px;color:var(--text-2);font-weight:500;margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase;}
-  .receipt-cost-value{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#fff;letter-spacing:-0.02em;}
-  .receipt-breakdown-label{font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px;}
-  .receipt-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--card);border-radius:10px;margin-bottom:8px;border:1px solid var(--border);}
-  .receipt-row:last-child{margin-bottom:0;}
-  .receipt-row-pkg{font-size:14px;font-weight:600;color:#ccc;}
-  .receipt-row-qty{font-size:11px;background:var(--green-dim);color:var(--green);border:1px solid rgba(0,230,118,0.2);border-radius:6px;padding:2px 8px;font-weight:700;letter-spacing:0.04em;}
-  .receipt-row-cost{font-size:14px;font-weight:600;color:var(--text-2);}
+      /* ── Price list ── */
+      .pricelist {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
 
-  /* PRICE LIST */
-  .pkg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .pkg-card{
-    background:var(--card);border:1px solid var(--border);border-radius:16px;
-    padding:18px;display:flex;flex-direction:column;gap:8px;
-    position:relative;overflow:hidden;cursor:pointer;
-    transition:transform 0.18s ease,border-color 0.18s ease,box-shadow 0.18s ease,background 0.18s ease;
-    user-select:none;-webkit-tap-highlight-color:transparent;
-  }
-  .pkg-card:hover{border-color:rgba(0,230,118,0.28);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.4);}
-  .pkg-card:active{transform:scale(0.97);}
-  .pkg-card.selected{background:rgba(0,230,118,0.05);border-color:rgba(0,230,118,0.5);box-shadow:0 0 28px rgba(0,230,118,0.07),inset 0 0 0 1px rgba(0,230,118,0.08);}
-  .pkg-card.selected::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);}
-  .pkg-qty-badge{
-    position:absolute;top:11px;right:11px;min-width:30px;height:30px;
-    background:var(--green);color:#000;font-family:'Syne',sans-serif;
-    font-size:14px;font-weight:800;border-radius:9px;
-    display:flex;align-items:center;justify-content:center;padding:0 7px;
-    cursor:pointer;transition:background 0.15s,transform 0.12s;z-index:3;
-    letter-spacing:-0.02em;overflow:hidden;
-  }
-  .pkg-qty-badge:hover{background:#ff4455;transform:scale(1.12);}
-  .pkg-qty-badge:active{transform:scale(0.94);}
-  .pkg-qty-badge .n{display:block;}
-  .pkg-qty-badge .m{display:none;font-size:20px;font-weight:900;line-height:1;margin-bottom:1px}
-  .pkg-qty-badge:hover .n{display:none;}
-  .pkg-qty-badge:hover .m{display:block;}
-  .pkg-add-hint{font-size:10px;font-weight:600;color:rgba(0,230,118,0.35);letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;transition:color 0.15s;}
-  .pkg-card:hover .pkg-add-hint{color:rgba(0,230,118,0.75);}
-  .pkg-card.selected .pkg-add-hint{color:rgba(0,230,118,0.25);}
-  .pkg-badge-label{
-    display:inline-flex;align-items:center;gap:4px;background:rgba(255,150,30,0.12);
-    border:1px solid rgba(255,150,30,0.35);color:var(--orange);font-size:9px;font-weight:700;
-    padding:3px 8px;border-radius:999px;letter-spacing:0.06em;text-transform:uppercase;align-self:flex-start;
-  }
-  .pkg-robux{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.02em;line-height:1;}
-  .pkg-robux-unit{font-size:12px;color:var(--text-3);font-weight:500;}
-  .pkg-price{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--green);letter-spacing:-0.01em;}
-  .pkg-price-original{font-size:13px;color:var(--text-3);font-weight:500;text-decoration:line-through;display:none;}
-  .pkg-price-original.show{display:block;}
-  .pkg-rate{font-size:10px;color:var(--text-3);font-weight:500;}
+      .plitem {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 6px;
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.15s ease, background 0.18s ease, border-color 0.18s ease;
+      }
 
-  /* BUY BUTTON on each package */
-  .pkg-buy-btn{
-    display:flex;align-items:center;justify-content:center;gap:5px;
-    margin-top:6px;padding:8px;width:100%;
-    background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);
-    border-radius:9px;color:var(--green);
-    font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;
-    cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;
-    transition:all 0.2s;
-  }
-  .pkg-buy-btn:hover{background:rgba(0,230,118,0.2);border-color:rgba(0,230,118,0.55);}
+      .plitem:hover {
+        background: var(--border);
+        transform: scale(1.02);
+      }
 
-  /* Cart summary */
-  .cart-summary{display:none;margin-top:16px;padding:14px 18px;background:rgba(0,230,118,0.05);border:1px solid rgba(0,230,118,0.18);border-radius:14px;align-items:center;justify-content:space-between;gap:12px;animation:fadeUp 0.25s ease both;}
-  .cart-summary.visible{display:flex;}
-  .cart-left{display:flex;flex-direction:column;gap:2px;}
-  .cart-robux{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--green);letter-spacing:-0.02em;line-height:1;}
-  .cart-label{font-size:11px;color:var(--text-3);font-weight:500;}
-  .cart-cost{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.02em;text-align:right;}
-  .cart-cost-label{font-size:11px;color:var(--text-3);font-weight:500;text-align:right;}
-  .cart-buy-btn{
-    margin-top:12px;width:100%;padding:14px;background:var(--green);border:none;
-    border-radius:var(--radius-sm);color:#000;font-family:'Syne',sans-serif;
-    font-size:14px;font-weight:800;letter-spacing:0.02em;cursor:pointer;
-    transition:background 0.2s,transform 0.15s,box-shadow 0.2s;display:none;
-  }
-  .cart-buy-btn.visible{display:block;}
-  .cart-buy-btn:hover{background:#00ff8a;box-shadow:0 4px 24px rgba(0,230,118,0.25);transform:translateY(-1px);}
-  .clear-btn{margin-top:10px;width:100%;padding:10px;background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.18);border-radius:10px;color:#ff6b6b;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:0.04em;transition:all 0.2s;display:none;}
-  .clear-btn.visible{display:block;}
-  .clear-btn:hover{background:rgba(255,77,77,0.13);border-color:rgba(255,77,77,0.38);}
+      .plitem:active {
+        transform: scale(0.96);
+      }
 
-  /* ── PURCHASE MODAL ── */
-  .modal-overlay{
-    display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);
-    z-index:1000;align-items:center;justify-content:center;padding:20px;
-    backdrop-filter:blur(4px);
-  }
-  .modal-overlay.show{display:flex;}
-  .modal{
-    background:var(--surface);border:1px solid rgba(0,230,118,0.25);
-    border-radius:var(--radius);padding:28px;max-width:420px;width:100%;
-    position:relative;animation:fadeUp 0.3s ease both;
-  }
-  .modal-top-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,230,118,0.6),transparent);}
-  .modal-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:6px;}
-  .modal-sub{font-size:12px;color:var(--text-3);margin-bottom:22px;line-height:1.5;}
-  .modal-summary{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:18px;}
-  .modal-summary-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);}
-  .modal-summary-row:last-child{border-bottom:none;}
-  .modal-summary-key{font-size:12px;color:var(--text-3);}
-  .modal-summary-val{font-size:13px;font-weight:700;color:#ccc;}
-  .modal-summary-val.green{color:var(--green);}
-  .modal-roblox-field{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
-  .modal-roblox-label{font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-3);}
-  .modal-roblox-wrap{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;transition:border-color 0.2s,box-shadow 0.2s;}
-  .modal-roblox-wrap:focus-within{border-color:rgba(0,230,118,0.45);box-shadow:0 0 0 3px rgba(0,230,118,0.06);}
-  .modal-roblox-icon{font-size:14px;margin-right:10px;opacity:0.5;}
-  .modal-roblox-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:13px 0;}
-  .modal-roblox-input::placeholder{color:var(--text-3);}
-  .modal-note{font-size:11px;color:var(--text-3);line-height:1.6;margin-bottom:20px;padding:10px 14px;background:rgba(255,150,30,0.05);border:1px solid rgba(255,150,30,0.15);border-radius:10px;}
-  .modal-note strong{color:var(--orange);}
-  .modal-actions{display:flex;gap:10px;}
-  .modal-cancel{
-    flex:1;padding:13px;background:var(--card);border:1px solid var(--border);
-    border-radius:var(--radius-sm);color:var(--text-2);font-family:'DM Sans',sans-serif;
-    font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;
-  }
-  .modal-cancel:hover{border-color:rgba(255,255,255,0.15);color:#ccc;}
-  .modal-confirm{
-    flex:2;padding:13px;background:var(--green);border:none;
-    border-radius:var(--radius-sm);color:#000;font-family:'Syne',sans-serif;
-    font-size:14px;font-weight:800;cursor:pointer;transition:all 0.2s;
-  }
-  .modal-confirm:hover{background:#00ff8a;transform:translateY(-1px);}
-  .modal-confirm:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+      /* ✅ Selected / toggled-on state */
+      .plitem.selected {
+        background: var(--green-bg);
+        border-color: var(--green-dim);
+      }
 
-  /* ── SUCCESS TOAST ── */
-  .toast{
-    position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);
-    background:var(--surface);border:1px solid rgba(0,230,118,0.35);
-    border-radius:14px;padding:14px 22px;
-    display:flex;align-items:center;gap:10px;
-    font-size:13px;font-weight:600;color:#ccc;
-    z-index:2000;opacity:0;
-    transition:opacity 0.3s ease,transform 0.3s ease;pointer-events:none;
-    white-space:nowrap;
-  }
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  .toast-icon{font-size:18px;}
+      .plitem.selected .pl-robux {
+        color: var(--green);
+      }
 
-  /* FOOTER */
-  footer{margin-top:16px;text-align:center;font-size:11px;color:var(--text-3);line-height:1.7;position:relative;z-index:1;animation:fadeUp 0.5s ease 0.28s both;}
-  footer strong{color:var(--text-2);font-weight:600;}
+      .plitem.selected .pl-rbx {
+        color: var(--green-dim);
+      }
 
-  /* LOGO */
-  .logo{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;letter-spacing:-0.03em;line-height:1;}
-  .logo .white{color:#fff;}
-  .logo .green{color:var(--green);}
-  .subtitle{margin-top:6px;font-size:12px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-3);}
-  .logo-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-left:3px;vertical-align:middle;margin-bottom:4px;box-shadow:0 0 10px var(--green);}
+      .pl-robux {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--white);
+        transition: color 0.18s ease;
+      }
+      .pl-rbx {
+        font-size: 11px;
+        color: var(--grey);
+        margin-top: 1px;
+        transition: color 0.18s ease;
+      }
+      .pl-price {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--green);
+        margin-top: 4px;
+      }
+      .pl-description {
+        font-size: 10px;
+        color: var(--amber);
+        margin-top: 2px;
+        font-weight: 600;
+      }
 
-  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.22)}70%{transform:scale(0.93)}100%{transform:scale(1)}}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-  .pop{animation:pop 0.25s ease both;}
-  .shake{animation:shake 0.4s ease both;}
+      .empty {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--grey);
+        font-size: 14px;
+        line-height: 1.6;
+      }
 
-  @media(max-width:380px){
-    .pkg-grid{grid-template-columns:1fr;}
-    .logo{font-size:30px;}
-    #mainInput{font-size:28px;}
-    .header-btns{right:-90px;}
-  }
-</style>
-</head>
-<body>
-<div class="grain"></div>
-
-<!-- PURCHASE MODAL -->
-<div class="modal-overlay" id="purchaseModal">
-  <div class="modal">
-    <div class="modal-top-line"></div>
-    <div class="modal-title">Confirm Order</div>
-    <div class="modal-sub">Review your order details before placing</div>
-    <div class="modal-summary" id="modalSummary"></div>
-    <div class="modal-roblox-field">
-      <div class="modal-roblox-label">Your Roblox Username</div>
-      <div class="modal-roblox-wrap">
-        <span class="modal-roblox-icon">🎮</span>
-        <input class="modal-roblox-input" id="robloxUsername" type="text" placeholder="Enter Roblox username" />
+      /* ── Footer ── */
+      .footer {
+        text-align: center;
+        font-size: 12px;
+        color: var(--grey-dim);
+        margin-top: 1.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="header">
+        <div class="logo">Donne <span>TopUp</span></div>
+        <div class="subtitle">Store Calculator</div>
       </div>
-    </div>
-    <div class="modal-note">
-      <strong>Payment not required yet.</strong> Place your order and the seller will contact you with payment instructions.
-    </div>
-    <div class="modal-actions">
-      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-confirm" id="modalConfirmBtn" onclick="confirmOrder()">Place Order →</button>
-    </div>
-  </div>
-</div>
 
-<!-- SUCCESS TOAST -->
-<div class="toast" id="toast">
-  <span class="toast-icon">✅</span>
-  <span id="toastMsg">Order placed successfully!</span>
-</div>
-
-<div class="wrapper">
-
-  <!-- TOP AREA: centered logo, buttons + panels float as overlay -->
-  <div class="top-area">
-
-    <!-- Logo centered in normal flow -->
-    <div class="logo">
-      <span class="white">Donne</span><span class="green">TopUp</span><span class="logo-dot"></span>
-    </div>
-    <div class="subtitle">Store Calculator</div>
-
-    <!-- Buttons: absolute so they don't affect height -->
-    <div class="header-btns">
-      <button class="icon-btn" id="loginTrigger" onclick="togglePanel('login')">
-        <span class="lt-dot"></span>
-        <span id="loginTriggerText">Login</span>
-      </button>
-      <button class="icon-btn" id="menuTrigger" onclick="togglePanel('menu')">
-        <div class="menu-icon"><span></span><span></span><span></span></div>
-      </button>
-    </div>
-
-    <!-- Panels anchor: absolute, right-aligned, drops below buttons, floats over page -->
-    <div class="panels-anchor">
-
-      <!-- LOGIN PANEL -->
-      <div class="panel" id="loginPanel">
-        <div class="panel-top-line"></div>
-        <div class="panel-inner">
-          <div class="panel-logged-in" id="panelLoggedIn">
-            <div class="pli-avatar">👤</div>
-            <div class="pli-name" id="panelUsername">—</div>
-            <div class="pli-badge">✦ Reseller Account</div>
-            <div class="pli-rate">Your reseller rate is active:<br/><strong>$0.87 per 80 R$</strong> (instead of $0.90)</div>
-            <button class="logout-btn" onclick="logout()">Sign out</button>
+      <div class="card">
+        <div class="section-label">Calculate by</div>
+        <div class="toggle-row">
+          <div class="tog active" id="tog-budget" onclick="setMode('budget')">
+            💵 My budget (USD)
           </div>
-          <div class="login-form" id="loginForm">
-            <div class="panel-title">Reseller Login</div>
-            <div class="panel-sub">Sign in to unlock your <span>special pricing</span></div>
-            <div class="field-wrap">
-              <div class="field-label">Username</div>
-              <div class="field-input-wrap">
-                <span class="field-icon">👤</span>
-                <input class="field-input" id="loginUsername" type="text" placeholder="your username" autocomplete="username" onkeydown="if(event.key==='Enter')attemptLogin()" />
-              </div>
-            </div>
-            <div class="field-wrap">
-              <div class="field-label">Password</div>
-              <div class="field-input-wrap">
-                <span class="field-icon">🔑</span>
-                <input class="field-input" id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')attemptLogin()" />
-                <button class="pw-toggle" id="pwToggle" onclick="togglePw()" type="button">👁</button>
-              </div>
-            </div>
-            <div class="login-error" id="loginError">
-              <span style="font-size:14px;flex-shrink:0">⚠️</span>
-              <span id="loginErrorMsg">Invalid username or password.</span>
-            </div>
-            <button class="login-submit" id="loginSubmit" onclick="attemptLogin()">
-              <div class="spinner"></div>
-              <span class="btn-text">Sign In →</span>
-            </button>
+          <div class="tog" id="tog-robux" onclick="setMode('robux')">
+            🎮 Robux amount
+          </div>
+        </div>
+        <div class="input-wrap">
+          <div class="prefix" id="prefix">$</div>
+          <input
+            id="amount"
+            type="number"
+            min="0"
+            step="any"
+            placeholder="0.00"
+            oninput="calculate()"
+          />
+        </div>
+        <div class="hint" id="hint">
+          Enter your maximum budget — we'll find the best deal
+        </div>
+      </div>
+
+      <div class="upsell" id="upsell">
+        <div class="upsell-head">⚡ Better deal available</div>
+        <div class="upsell-body" id="upsell-body"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-label">Receipt</div>
+        <div id="receipt-content">
+          <div class="empty">
+            Enter a value above<br />to see your package breakdown
           </div>
         </div>
       </div>
 
-      <!-- MENU PANEL -->
-      <div class="panel" id="menuPanel">
-        <div class="panel-top-line"></div>
-        <div class="panel-inner">
-          <div class="panel-title">Menu</div>
-          <div class="menu-options">
-            <div class="menu-option" onclick="openHistory()">
-              <div class="menu-option-icon">📋</div>
-              <div>
-                <div>History</div>
-                <div class="menu-option-desc">View your past orders</div>
-              </div>
-            </div>
-            <div class="menu-option" onclick="openContact()">
-              <div class="menu-option-icon">💬</div>
-              <div>
-                <div>Contact</div>
-                <div class="menu-option-desc">Reach out to the store owner</div>
-              </div>
-            </div>
+      <div class="card">
+        <div class="section-label">Price list</div>
+        <div class="pricelist">
+          <div class="plitem" onclick="toggleSelect(this)">
+            <div class="pl-robux">80</div>
+            <div class="pl-rbx">Robux</div>
+            <div class="pl-price">$0.90</div>
+          </div>
+          <div class="plitem" onclick="toggleSelect(this)">
+            <div class="pl-robux">500</div>
+            <div class="pl-rbx">Robux</div>
+            <div class="pl-price">$4.50</div>
+          </div>
+          <div class="plitem" onclick="toggleSelect(this)">
+            <div class="pl-robux">1,000</div>
+            <div class="pl-rbx">Robux</div>
+            <div class="pl-price">$9.00</div>
+            <div class="pl-description">Free Premium</div>
+          </div>
+          <div class="plitem" onclick="toggleSelect(this)">
+            <div class="pl-robux">2,200</div>
+            <div class="pl-rbx">Robux</div>
+            <div class="pl-price">$18.00</div>
+            <div class="pl-description">Free Premium</div>
           </div>
         </div>
       </div>
 
-    </div><!-- /panels-anchor -->
-  </div><!-- /top-area -->
-
-  <!-- HISTORY PANEL (full-width, in main flow) -->
-  <div class="history-panel-wrap" id="historyPanel">
-    <div class="panel-top-line"></div>
-    <div class="history-panel-inner">
-      <button class="history-back" onclick="closeSubPanel('history')">← Back</button>
-      <div class="panel-title">Order History</div>
-      <div class="panel-sub" id="historySubtitle">Showing your past orders</div>
-      <div id="historyContent"></div>
+      <div class="footer">
+        Made&Design by: <b>MaNich</b>; Owned by Donne Store
+      </div>
     </div>
-  </div>
 
-  <!-- CONTACT PANEL (full-width, in main flow) -->
-  <div class="contact-panel-wrap" id="contactPanel">
-    <div class="panel-top-line"></div>
-    <div class="panel-inner">
-      <button class="history-back" onclick="closeSubPanel('contact')">← Back</button>
-      <div class="panel-title">Contact Us</div>
-      <div class="panel-sub">Reach out to Donne Store</div>
-      <div class="contact-item">
-        <div class="contact-item-icon">💬</div>
-        <div>
-          <div class="contact-item-label">Telegram</div>
-          <div class="contact-item-value">@DonneStore</div>
+    <script>
+      const PKGS = [
+        { robux: 2200, price: 18.0 },
+        { robux: 1000, price: 9.0 },
+        { robux: 500, price: 4.5 },
+        { robux: 320, price: 3.6 },
+        { robux: 240, price: 2.7 },
+        { robux: 160, price: 1.8 },
+        { robux: 80, price: 0.9 },
+      ];
+      const UPSELL_TIERS = PKGS.filter((p) =>
+        [500, 1000, 2200].includes(p.robux),
+      );
+
+      let mode = "budget";
+
+      // ✅ Click once → green (selected). Click again → back to normal.
+      function toggleSelect(el) {
+        el.classList.toggle("selected");
+      }
+
+      function setMode(m) {
+        mode = m;
+        document
+          .getElementById("tog-budget")
+          .classList.toggle("active", m === "budget");
+        document
+          .getElementById("tog-robux")
+          .classList.toggle("active", m === "robux");
+        document.getElementById("prefix").textContent =
+          m === "budget" ? "$" : "R";
+        document.getElementById("amount").placeholder =
+          m === "budget" ? "0.00" : "0";
+        document.getElementById("hint").textContent =
+          m === "budget"
+            ? "Enter your maximum budget — we'll find the best deal"
+            : "Enter how many Robux you want — we'll find the cheapest way";
+        document.getElementById("amount").value = "";
+        clearReceipt();
+      }
+
+      function calcBudget(budget) {
+        const cart = [];
+        let rem = budget;
+        for (const p of PKGS) {
+          const qty = Math.floor(rem / p.price);
+          if (qty > 0) {
+            cart.push({ ...p, qty });
+            rem = parseFloat((rem - qty * p.price).toFixed(10));
+          }
+        }
+        return cart;
+      }
+
+      function calcRobux(target) {
+        const cart = [];
+        let rem = target;
+        for (const p of PKGS) {
+          if (rem <= 0) break;
+          const qty = Math.floor(rem / p.robux);
+          if (qty > 0) {
+            cart.push({ ...p, qty });
+            rem -= qty * p.robux;
+          }
+        }
+        if (rem > 0) {
+          const s = PKGS[PKGS.length - 1];
+          const ex = cart.find((i) => i.robux === s.robux);
+          if (ex) ex.qty++;
+          else cart.push({ ...s, qty: 1 });
+        }
+        return cart;
+      }
+
+      function findUpsell(budget, totalRobux) {
+        for (const t of [...UPSELL_TIERS].sort((a, b) => a.price - b.price)) {
+          if (budget < t.price) {
+            const gap = parseFloat((t.price - budget).toFixed(2));
+            const bonus = t.robux - totalRobux;
+            if (gap > 0 && gap > 0) return { gap, tier: t, bonus };
+            break;
+          }
+        }
+        return null;
+      }
+
+      function clearReceipt() {
+        document.getElementById("receipt-content").innerHTML =
+          '<div class="empty">Enter a value above<br>to see your package breakdown</div>';
+        document.getElementById("upsell").style.display = "none";
+      }
+
+      function calculate() {
+        const raw = parseFloat(document.getElementById("amount").value);
+        if (isNaN(raw) || raw <= 0) {
+          clearReceipt();
+          return;
+        }
+
+        let cart,
+          totalRobux,
+          totalCost,
+          leftover = null,
+          upsell = null;
+
+        if (mode === "budget") {
+          cart = calcBudget(raw);
+          if (!cart.length) {
+            document.getElementById("receipt-content").innerHTML =
+              '<div class="empty">Budget too low — minimum is $0.90 for 80 Robux</div>';
+            document.getElementById("upsell").style.display = "none";
+            return;
+          }
+          totalRobux = cart.reduce((s, i) => s + i.qty * i.robux, 0);
+          totalCost = parseFloat(
+            cart.reduce((s, i) => s + i.qty * i.price, 0).toFixed(2),
+          );
+          leftover = parseFloat((raw - totalCost).toFixed(2));
+          upsell = findUpsell(raw, totalRobux);
+        } else {
+          const target = Math.floor(raw);
+          cart = calcRobux(target);
+          totalRobux = cart.reduce((s, i) => s + i.qty * i.robux, 0);
+          totalCost = parseFloat(
+            cart.reduce((s, i) => s + i.qty * i.price, 0).toFixed(2),
+          );
+        }
+
+        let rows = "";
+        for (const item of cart) {
+          const lr = item.qty * item.robux;
+          const lc = (item.qty * item.price).toFixed(2);
+          rows += `
+      <div class="rrow">
+        <div class="rrow-left">
+          <div class="qty-badge">${item.qty}×</div>
+          <div>
+            <div class="rrow-pkg">${item.robux.toLocaleString()} Robux pack</div>
+            <div class="rrow-each">$${item.price.toFixed(2)} each</div>
+          </div>
         </div>
-      </div>
-      <div class="contact-item">
-        <div class="contact-item-icon">📱</div>
-        <div>
-          <div class="contact-item-label">Discord</div>
-          <div class="contact-item-value">DonneStore#0000</div>
+        <div class="rrow-right">
+          <div class="rrow-robux">+${lr.toLocaleString()}</div>
+          <div class="rrow-cost">$${lc}</div>
         </div>
-      </div>
-      <div class="contact-item">
-        <div class="contact-item-icon">🕐</div>
-        <div>
-          <div class="contact-item-label">Response Time</div>
-          <div class="contact-item-value">Usually within 1–2 hours</div>
-        </div>
-      </div>
+      </div>`;
+        }
+
+        const changeRow =
+          leftover !== null && leftover > 0
+            ? `<div class="change-row">Change from budget: $${leftover.toFixed(2)}</div>`
+            : "";
+
+        document.getElementById("receipt-content").innerHTML = `
+    <div class="receipt-rows">${rows}</div>
+    <div class="divider"></div>
+    <div class="total-row">
+      <div class="total-robux">${totalRobux.toLocaleString()} Robux</div>
+      <div class="total-cost">$${totalCost.toFixed(2)}</div>
     </div>
-  </div>
+    ${changeRow}
+  `;
 
-  <!-- RESELLER BANNER -->
-  <div class="reseller-banner" id="resellerBanner">
-    <div class="reseller-banner-icon">🏷️</div>
-    <div>
-      <div class="reseller-banner-title">Reseller Pricing Active</div>
-      <div class="reseller-banner-sub">Welcome, <strong id="bannerUsername">—</strong>! You're getting <strong>$0.87</strong> instead of $0.90 for the 80 R$ pack.</div>
-    </div>
-  </div>
-
-  <!-- CALCULATOR CARD -->
-  <div class="card" style="animation-delay:0.04s">
-    <div class="card-top-line"></div>
-    <div class="section-label">Calculate by</div>
-    <div class="toggle-row">
-      <button class="toggle-btn active" id="btnBudget" onclick="setMode('budget')">
-        <span class="toggle-icon green">💵</span> My budget (USD)
-      </button>
-      <button class="toggle-btn" id="btnRobux" onclick="setMode('robux')">
-        <span class="toggle-icon purple">🎮</span> Robux amount
-      </button>
-    </div>
-    <div class="input-wrap">
-      <span class="input-prefix" id="inputPrefix">$</span>
-      <input type="number" id="mainInput" placeholder="0.00" min="0" step="any" oninput="calculate()" autocomplete="off" />
-    </div>
-    <div class="input-helper" id="inputHelper">Enter your maximum budget — we'll find the best deal</div>
-  </div>
-
-  <!-- RECEIPT CARD -->
-  <div class="card" style="animation-delay:0.11s">
-    <div class="card-top-line"></div>
-    <div class="section-label">Receipt</div>
-    <div class="receipt-empty" id="receiptEmpty">
-      <span class="icon">🧾</span>
-      Enter a value above or tap packages<br/>below to build your order
-    </div>
-    <div class="receipt-content" id="receiptContent">
-      <div class="receipt-total">
-        <div>
-          <div class="receipt-total-label" id="totalRobuxLabel">Total Robux</div>
-          <div class="receipt-total-value" id="totalRobuxValue">0</div>
-          <div class="receipt-total-sub" id="totalRobuxSub"></div>
-        </div>
-        <div class="receipt-cost-box">
-          <div class="receipt-cost-label" id="totalCostLabel">Total Cost</div>
-          <div class="receipt-cost-value" id="totalCostValue">$0.00</div>
-        </div>
-      </div>
-      <div class="receipt-breakdown-label">Package breakdown</div>
-      <div id="breakdownRows"></div>
-    </div>
-  </div>
-
-  <!-- PRICE LIST CARD -->
-  <div class="card" style="animation-delay:0.18s">
-    <div class="card-top-line"></div>
-    <div class="section-label">Price List — tap to add</div>
-    <div class="pkg-grid" id="pkgGrid"></div>
-    <div class="cart-summary" id="cartSummary">
-      <div class="cart-left">
-        <div class="cart-robux" id="cartRobux">0 R$</div>
-        <div class="cart-label">total robux selected</div>
-      </div>
-      <div>
-        <div class="cart-cost" id="cartCost">$0.00</div>
-        <div class="cart-cost-label">total cost</div>
-      </div>
-    </div>
-    <button class="cart-buy-btn" id="cartBuyBtn" onclick="openBuyModal('cart')">🛒 Buy Now</button>
-    <button class="clear-btn" id="clearBtn" onclick="clearCart()">✕ Clear all packages</button>
-  </div>
-
-  <footer>Made &amp; Design by: <strong>MaNich</strong><br/>Owned by <strong>Donne Store</strong></footer>
-</div>
-
-<script>
-/* ══ RESELLER DATABASE ══ */
-const RESELLER_DB = [
-  { username:"reseller1", password:"pass1234",  displayName:"Reseller One" },
-  { username:"reseller2", password:"mypass456", displayName:"Reseller Two" },
-  { username:"donne_vip", password:"vip2025!",  displayName:"Donne VIP"    },
-];
-
-/* ══ PACKAGES ══ */
-const PACKAGES_BASE = [
-  { id:1, robux:80,   price:0.90, resellerPrice:0.87, badge:null },
-  { id:2, robux:500,  price:4.50, resellerPrice:4.35, badge:null },
-  { id:3, robux:1000, price:9.00, resellerPrice:8.70, badge:"Free Premium" },
-  { id:4, robux:2200, price:18.00,resellerPrice:17.40,badge:"Free Premium" },
-];
-
-/* ══ STATE ══ */
-const cart = {};
-let mode = 'budget';
-let loggedInUser = null;
-let activePanelId = null;
-let pendingOrder = null;
-
-/* Per-reseller history stored in memory: { username -> [ orders ] } */
-const orderHistory = {};
-
-function getPackages() {
-  return PACKAGES_BASE.map(p => ({...p, price: loggedInUser ? p.resellerPrice : p.price}));
-}
-
-/* ══ PANEL TOGGLING ══ */
-function closeAllPanels() {
-  ['loginPanel','menuPanel'].forEach(id => document.getElementById(id).classList.remove('open'));
-  activePanelId = null;
-}
-
-function togglePanel(name) {
-  const panelId = name === 'login' ? 'loginPanel' : 'menuPanel';
-  const isOpen = document.getElementById(panelId).classList.contains('open');
-  closeAllPanels();
-  if (!isOpen) {
-    document.getElementById(panelId).classList.add('open');
-    activePanelId = panelId;
-    if (name === 'login' && !loggedInUser) {
-      setTimeout(() => document.getElementById('loginUsername').focus(), 320);
-    }
-  }
-}
-
-function openHistory() {
-  closeAllPanels();
-  renderHistory();
-  document.getElementById('historyPanel').classList.add('show');
-  document.getElementById('contactPanel').classList.remove('show');
-}
-
-function openContact() {
-  closeAllPanels();
-  document.getElementById('contactPanel').classList.add('show');
-  document.getElementById('historyPanel').classList.remove('show');
-}
-
-function closeSubPanel(which) {
-  document.getElementById(which === 'history' ? 'historyPanel' : 'contactPanel').classList.remove('show');
-}
-
-/* click outside to close */
-document.addEventListener('click', function(e) {
-  if (!activePanelId) return;
-  const panel = document.getElementById(activePanelId);
-  const loginBtn = document.getElementById('loginTrigger');
-  const menuBtn  = document.getElementById('menuTrigger');
-  if (!panel.contains(e.target) && !loginBtn.contains(e.target) && !menuBtn.contains(e.target)) {
-    closeAllPanels();
-  }
-});
-
-/* ══ LOGIN ══ */
-function togglePw() {
-  const i = document.getElementById('loginPassword');
-  i.type = i.type === 'password' ? 'text' : 'password';
-}
-
-function attemptLogin() {
-  const username = document.getElementById('loginUsername').value.trim();
-  const password = document.getElementById('loginPassword').value;
-  const btn = document.getElementById('loginSubmit');
-  if (!username || !password) { showLoginError('Please enter both fields.'); return; }
-  btn.disabled = true; btn.classList.add('loading');
-  document.getElementById('loginError').classList.remove('show');
-  setTimeout(() => {
-    const match = RESELLER_DB.find(r => r.username === username && r.password === password);
-    btn.disabled = false; btn.classList.remove('loading');
-    if (match) { loginSuccess(match); }
-    else {
-      showLoginError('Invalid username or password.');
-      document.getElementById('loginForm').classList.add('shake');
-      setTimeout(() => document.getElementById('loginForm').classList.remove('shake'), 500);
-    }
-  }, 250);
-}
-
-function showLoginError(msg) {
-  document.getElementById('loginErrorMsg').textContent = msg;
-  document.getElementById('loginError').classList.add('show');
-}
-
-function loginSuccess(user) {
-  loggedInUser = user;
-  if (!orderHistory[user.username]) orderHistory[user.username] = [];
-  const trigger = document.getElementById('loginTrigger');
-  trigger.classList.add('logged-in');
-  document.getElementById('loginTriggerText').textContent = user.displayName;
-  document.getElementById('loginForm').classList.add('hidden');
-  document.getElementById('panelUsername').textContent = user.displayName;
-  document.getElementById('panelLoggedIn').classList.add('show');
-  document.getElementById('bannerUsername').textContent = user.displayName;
-  document.getElementById('resellerBanner').classList.add('show');
-  clearCart(); renderPackages(); calculate();
-}
-
-function logout() {
-  loggedInUser = null;
-  const trigger = document.getElementById('loginTrigger');
-  trigger.classList.remove('logged-in');
-  document.getElementById('loginTriggerText').textContent = 'Login';
-  document.getElementById('panelLoggedIn').classList.remove('show');
-  document.getElementById('loginForm').classList.remove('hidden');
-  document.getElementById('loginUsername').value = '';
-  document.getElementById('loginPassword').value = '';
-  document.getElementById('loginError').classList.remove('show');
-  document.getElementById('resellerBanner').classList.remove('show');
-  closeAllPanels();
-  clearCart(); renderPackages(); calculate();
-}
-
-/* ══ PACKAGES ══ */
-function renderPackages() {
-  const PKGS = getPackages();
-  const grid = document.getElementById('pkgGrid');
-  grid.innerHTML = PKGS.map(pkg => {
-    const qty = cart[pkg.id] || 0;
-    const sel = qty > 0;
-    const origPrice = PACKAGES_BASE.find(p => p.id === pkg.id).price;
-    const isDiscounted = loggedInUser && pkg.price < origPrice;
-    return `
-    <div class="pkg-card${sel?' selected':''}" id="pkg-${pkg.id}" onclick="addPackage(${pkg.id},event)">
-      ${sel?`<div class="pkg-qty-badge" id="badge-${pkg.id}" onclick="removeOne(${pkg.id},event)"><span class="n">${qty}</span><span class="m">−</span></div>`:''}
-      ${pkg.badge?`<span class="pkg-badge-label">⭐ ${pkg.badge}</span>`:`<span></span>`}
-      <div><span class="pkg-robux">${pkg.robux.toLocaleString()}</span><span class="pkg-robux-unit"> R$</span></div>
-      <div class="pkg-price">$${pkg.price.toFixed(2)}</div>
-      ${isDiscounted?`<div class="pkg-price-original show">was $${origPrice.toFixed(2)}</div>`:''}
-      <div class="pkg-rate">~$${(pkg.price/pkg.robux*1000).toFixed(2)} per 1,000 R$</div>
-      <div class="pkg-add-hint">${sel?'+ tap to add more':'+ tap to add'}</div>
-      <button class="pkg-buy-btn" onclick="openBuyModal('single',${pkg.id},event)">Buy This Pack</button>
-    </div>`;
-  }).join('');
-}
-
-function addPackage(id, e) {
-  if (e && (e.target.closest('.pkg-qty-badge') || e.target.closest('.pkg-buy-btn'))) return;
-  cart[id] = (cart[id] || 0) + 1;
-  clearInputSilent(); renderPackages(); animateBadge(id); syncFromCart();
-}
-
-function removeOne(id, e) {
-  e.stopPropagation();
-  if (!cart[id]) return;
-  cart[id]--;
-  if (cart[id] <= 0) delete cart[id];
-  renderPackages(); syncFromCart();
-}
-
-function clearCart() {
-  Object.keys(cart).forEach(k => delete cart[k]);
-  renderPackages(); syncFromCart();
-}
-
-function animateBadge(id) {
-  const b = document.getElementById(`badge-${id}`);
-  if (!b) return;
-  b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
-}
-
-function syncFromCart() {
-  const PKGS = getPackages();
-  const totalRobux = PKGS.reduce((s,p) => s + (cart[p.id]||0)*p.robux, 0);
-  const totalCost  = PKGS.reduce((s,p) => s + (cart[p.id]||0)*p.price, 0);
-  const hasItems = totalRobux > 0;
-  document.getElementById('cartSummary').classList.toggle('visible', hasItems);
-  document.getElementById('clearBtn').classList.toggle('visible', hasItems);
-  document.getElementById('cartBuyBtn').classList.toggle('visible', hasItems);
-  if (hasItems) {
-    document.getElementById('cartRobux').textContent = totalRobux.toLocaleString() + ' R$';
-    document.getElementById('cartCost').textContent  = '$' + totalCost.toFixed(2);
-  }
-  if (!hasItems) { showEmpty(); return; }
-  const breakdown = PKGS.filter(p => cart[p.id]>0).map(p => ({...p, qty:cart[p.id]}));
-  document.getElementById('receiptEmpty').style.display = 'none';
-  document.getElementById('receiptContent').classList.add('visible');
-  document.getElementById('totalRobuxLabel').textContent = 'Total Robux';
-  document.getElementById('totalRobuxValue').textContent = totalRobux.toLocaleString() + ' R$';
-  document.getElementById('totalRobuxSub').textContent   = 'from selected packages';
-  document.getElementById('totalCostLabel').textContent  = 'Total Cost';
-  document.getElementById('totalCostValue').textContent  = '$' + totalCost.toFixed(2);
-  document.getElementById('breakdownRows').innerHTML = breakdown.map(r =>
-    `<div class="receipt-row">
-      <span class="receipt-row-pkg">${r.robux.toLocaleString()} R$ pack</span>
-      <span class="receipt-row-qty">×${r.qty}</span>
-      <span class="receipt-row-cost">$${(r.price*r.qty).toFixed(2)}</span>
-    </div>`).join('');
-}
-
-/* ══ CALCULATOR ══ */
-function setMode(m) {
-  mode = m;
-  clearInputSilent();
-  document.getElementById('btnBudget').classList.toggle('active', m==='budget');
-  document.getElementById('btnRobux').classList.toggle('active',  m==='robux');
-  document.getElementById('inputPrefix').textContent = m==='budget'?'$':'R$';
-  document.getElementById('inputHelper').textContent = m==='budget'
-    ? "Enter your maximum budget — we'll find the best deal"
-    : "Enter your desired Robux — we'll calculate the cost";
-  if (Object.keys(cart).length===0) showEmpty(); else syncFromCart();
-  document.getElementById('mainInput').focus();
-}
-
-function calcByBudget(budget) {
-  const PKGS = getPackages();
-  let rem = budget; const res=[];
-  for (const pkg of [...PKGS].sort((a,b)=>b.price-a.price)) {
-    const qty = Math.floor(rem/pkg.price);
-    if (qty>0) { res.push({...pkg,qty}); rem = parseFloat((rem-qty*pkg.price).toFixed(2)); }
-  }
-  return { breakdown:res, totalRobux:res.reduce((s,r)=>s+r.robux*r.qty,0), totalSpent:parseFloat((budget-rem).toFixed(2)), leftover:rem };
-}
-
-function calcByRobux(target) {
-  const PKGS = getPackages();
-  let rem = target; const res=[];
-  for (const pkg of [...PKGS].sort((a,b)=>b.robux-a.robux)) {
-    const qty = Math.floor(rem/pkg.robux);
-    if (qty>0) { res.push({...pkg,qty}); rem -= qty*pkg.robux; }
-  }
-  return { breakdown:res, totalRobux:target-rem, totalCost:parseFloat(res.reduce((s,r)=>s+r.price*r.qty,0).toFixed(2)), shortfall:rem };
-}
-
-function calculate() {
-  const raw = document.getElementById('mainInput').value;
-  const val = parseFloat(raw);
-  if (!raw||isNaN(val)||val<=0) {
-    if (Object.keys(cart).length>0) syncFromCart(); else showEmpty(); return;
-  }
-  Object.keys(cart).forEach(k=>delete cart[k]);
-  renderPackages();
-  document.getElementById('cartSummary').classList.remove('visible');
-  document.getElementById('clearBtn').classList.remove('visible');
-  document.getElementById('cartBuyBtn').classList.remove('visible');
-  const data = mode==='budget' ? calcByBudget(val) : calcByRobux(Math.round(val));
-  if (!data.breakdown.length) { showEmpty(); return; }
-  document.getElementById('receiptEmpty').style.display='none';
-  document.getElementById('receiptContent').classList.add('visible');
-  if (mode==='budget') {
-    document.getElementById('totalRobuxLabel').textContent = 'Total Robux';
-    document.getElementById('totalRobuxValue').textContent = data.totalRobux.toLocaleString()+' R$';
-    document.getElementById('totalRobuxSub').textContent   = `from $${data.totalSpent.toFixed(2)} spent`;
-    document.getElementById('totalCostLabel').textContent  = 'Spent';
-    document.getElementById('totalCostValue').textContent  = '$'+data.totalSpent.toFixed(2);
-  } else {
-    document.getElementById('totalRobuxLabel').textContent = 'Robux You Get';
-    document.getElementById('totalRobuxValue').textContent = data.totalRobux.toLocaleString()+' R$';
-    document.getElementById('totalRobuxSub').textContent   = data.shortfall>0?`${data.shortfall.toLocaleString()} R$ not covered`:'Exact match!';
-    document.getElementById('totalCostLabel').textContent  = 'Total Cost';
-    document.getElementById('totalCostValue').textContent  = '$'+data.totalCost.toFixed(2);
-  }
-  document.getElementById('breakdownRows').innerHTML = data.breakdown.map(r =>
-    `<div class="receipt-row">
-      <span class="receipt-row-pkg">${r.robux.toLocaleString()} R$ pack</span>
-      <span class="receipt-row-qty">×${r.qty}</span>
-      <span class="receipt-row-cost">$${(r.price*r.qty).toFixed(2)}</span>
-    </div>`).join('');
-}
-
-function showEmpty() {
-  document.getElementById('receiptEmpty').style.display='block';
-  document.getElementById('receiptContent').classList.remove('visible');
-}
-
-function clearInputSilent() { document.getElementById('mainInput').value=''; }
-
-/* ══ BUY MODAL ══ */
-function openBuyModal(type, pkgId, e) {
-  if (e) e.stopPropagation();
-  const PKGS = getPackages();
-  let items=[], totalRobux=0, totalCost=0;
-
-  if (type==='single') {
-    const pkg = PKGS.find(p=>p.id===pkgId);
-    items = [{...pkg, qty:1}];
-    totalRobux = pkg.robux;
-    totalCost  = pkg.price;
-  } else {
-    items = PKGS.filter(p=>cart[p.id]>0).map(p=>({...p, qty:cart[p.id]}));
-    totalRobux = items.reduce((s,r)=>s+r.robux*r.qty,0);
-    totalCost  = items.reduce((s,r)=>s+r.price*r.qty,0);
-  }
-
-  pendingOrder = { type, pkgId, items, totalRobux, totalCost };
-
-  const rows = items.map(r =>
-    `<div class="modal-summary-row">
-      <span class="modal-summary-key">${r.robux.toLocaleString()} R$ pack ×${r.qty}</span>
-      <span class="modal-summary-val">$${(r.price*r.qty).toFixed(2)}</span>
-    </div>`).join('');
-
-  document.getElementById('modalSummary').innerHTML = rows +
-    `<div class="modal-summary-row">
-      <span class="modal-summary-key">Total Robux</span>
-      <span class="modal-summary-val green">${totalRobux.toLocaleString()} R$</span>
-    </div>
-    <div class="modal-summary-row">
-      <span class="modal-summary-key">Total Cost</span>
-      <span class="modal-summary-val">$${totalCost.toFixed(2)}</span>
-    </div>`;
-
-  document.getElementById('robloxUsername').value = '';
-  document.getElementById('purchaseModal').classList.add('show');
-}
-
-function closeModal() {
-  document.getElementById('purchaseModal').classList.remove('show');
-  pendingOrder = null;
-}
-
-/* close modal on overlay click */
-document.getElementById('purchaseModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-function confirmOrder() {
-  const robloxUser = document.getElementById('robloxUsername').value.trim();
-  if (!robloxUser) {
-    document.getElementById('robloxUsername').style.borderColor = 'rgba(255,77,77,0.5)';
-    document.getElementById('robloxUsername').parentElement.style.borderColor = 'rgba(255,77,77,0.5)';
-    setTimeout(() => {
-      document.getElementById('robloxUsername').parentElement.style.borderColor = '';
-    }, 1500);
-    return;
-  }
-
-  const now = new Date();
-  const orderId = 'ORD-' + now.getTime().toString(36).toUpperCase();
-  const orderEntry = {
-    id: orderId,
-    robloxUsername: robloxUser,
-    items: pendingOrder.items,
-    totalRobux: pendingOrder.totalRobux,
-    totalCost: pendingOrder.totalCost,
-    date: now.toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
-    status: 'pending',
-    placedBy: loggedInUser ? loggedInUser.username : 'guest',
-    displayName: loggedInUser ? loggedInUser.displayName : 'Guest',
-  };
-
-  /* save to history (per-user if logged in, else guest) */
-  const key = loggedInUser ? loggedInUser.username : '_guest';
-  if (!orderHistory[key]) orderHistory[key] = [];
-  orderHistory[key].unshift(orderEntry);
-
-  closeModal();
-  if (pendingOrder.type === 'cart') clearCart();
-  pendingOrder = null;
-
-  showToast('✅ Order #' + orderId + ' placed!');
-}
-
-/* ══ HISTORY ══ */
-function renderHistory() {
-  const key = loggedInUser ? loggedInUser.username : '_guest';
-  const orders = orderHistory[key] || [];
-  const subtitle = document.getElementById('historySubtitle');
-  const content  = document.getElementById('historyContent');
-
-  if (loggedInUser) {
-    subtitle.textContent = `Orders placed under ${loggedInUser.displayName}`;
-  } else {
-    subtitle.textContent = 'Login to see your reseller history';
-  }
-
-  if (!orders.length) {
-    content.innerHTML = `<div class="history-empty"><span class="icon">📭</span>No orders yet.<br/>Place an order to see it here.</div>`;
-    return;
-  }
-
-  content.innerHTML = orders.map(o => `
-    <div class="history-order">
-      <div class="history-order-top">
-        <span class="history-order-id">${o.id}</span>
-        <span class="history-order-date">${o.date}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:baseline;">
-        <div class="history-order-robux">${o.totalRobux.toLocaleString()} R$</div>
-        <div class="history-order-cost">$${o.totalCost.toFixed(2)}</div>
-      </div>
-      <div class="history-order-user">🎮 ${o.robloxUsername}</div>
-      <div style="margin-top:8px;font-size:11px;color:var(--text-3);">
-        ${o.items.map(i=>`${i.robux.toLocaleString()} R$ ×${i.qty}`).join(' · ')}
-      </div>
-      <div class="history-status"><div class="history-status-dot"></div>Pending Delivery</div>
-    </div>`).join('');
-}
-
-/* ══ TOAST ══ */
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-/* ══ INIT ══ */
-renderPackages();
-
-/* Position the panels-anchor fixed under the right-side buttons */
-function positionPanelsAnchor() {
-  const menuBtn = document.getElementById('menuTrigger');
-  const anchor  = document.querySelector('.panels-anchor');
-  if (!menuBtn || !anchor) return;
-  const rect = menuBtn.getBoundingClientRect();
-  anchor.style.top  = (rect.bottom + 8) + 'px';
-  anchor.style.right = (window.innerWidth - rect.right) + 'px';
-}
-positionPanelsAnchor();
-window.addEventListener('resize', positionPanelsAnchor);
-</script>
-</body>
+        const upsellEl = document.getElementById("upsell");
+        if (upsell) {
+          document.getElementById("upsell-body").innerHTML =
+            `Add just <strong>$${upsell.gap.toFixed(2)} more</strong> and upgrade to the ` +
+            `<strong>${upsell.tier.robux.toLocaleString()} Robux pack</strong> ($${upsell.tier.price.toFixed(2)}) — ` +
+            `that's <strong>+${upsell.bonus.toLocaleString()} extra Robux</strong> for almost nothing!`;
+          upsellEl.style.display = "block";
+        } else {
+          upsellEl.style.display = "none";
+        }
+      }
+    </script>
+  </body>
 </html>
