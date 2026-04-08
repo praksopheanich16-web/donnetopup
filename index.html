@@ -497,6 +497,43 @@
         <div class="inp-hint" id="inputHint">Enter your budget and we'll find the optimal package mix</div>
       </div>
 
+      <div class="card">
+        <div class="c-shine"></div>
+        <div class="sec-lbl">Order Summary</div>
+        <div class="r-empty" id="receiptEmpty">
+          <div class="r-empty-ic">🧾</div>
+          <div class="r-empty-tx">Your order summary appears here.<br/>Enter a value or select packages below.</div>
+        </div>
+        <div class="r-content" id="receiptContent">
+          <div class="r-stats">
+            <div class="r-stat"><div class="r-stat-lbl" id="rLblR">Total Robux</div><div class="r-stat-val g" id="rValR">0 R$</div><div class="r-stat-sub" id="rSubR"></div></div>
+            <div class="r-stat"><div class="r-stat-lbl" id="rLblC">Total Cost</div><div class="r-stat-val w" id="rValC">$0.00</div></div>
+          </div>
+          <div class="bd-lbl">Breakdown</div>
+          <div id="bdRows"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="c-shine"></div>
+        <div class="sec-lbl">Packages — tap to add</div>
+        <div class="pkg-grid" id="pkgGrid"></div>
+        <div class="cart-bar" id="cartBar">
+          <div class="cb-top">
+            <div><div class="cb-robux" id="cbRobux">0 R$</div><div class="cb-lbl">total robux</div></div>
+            <div style="text-align:right"><div class="cb-cost" id="cbCost">$0.00</div><div class="cb-lbl">total cost</div></div>
+          </div>
+          <button class="cb-buy" onclick="openBuyModal('cart')">Buy Now — Checkout</button>
+          <button class="cb-clear" onclick="clearCart()">Clear selection</button>
+        </div>
+      </div>
+
+      <div class="footer">
+        Designed by <strong>MaNich</strong> · Owned by <strong>Donne Store</strong><br/>
+        Safe &amp; trusted Roblox top-up service
+      </div>
+    </div>
+
     <script>
       // ── Supabase client ──────────────────────────────────────────
       const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -657,6 +694,7 @@
             <div class="pkg-was${disc?" show":""}">was $${orig.toFixed(2)}</div>
             <div class="pkg-rate">≈ $${((p.price/p.robux)*1000).toFixed(2)} / 1K R$</div>
             <div class="pkg-hint">${sel?"+ add more":"+ tap to add"}</div>
+            <button class="pkg-buy" onclick="openBuyModal('single',${p.id},event)">Buy This Pack</button>
           </div>`;
         }).join("");
       }
